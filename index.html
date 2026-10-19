@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TabunganKu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef8f1; --surface:#fff; --line:#d9ecdf; --ink:#173323; --muted:#5f7a6a;
+  --green:#2f9e62; --green-d:#217a4a; --green-l:#d8f0e1; --red:#d65151; --red-l:#fbe6e6;
+  --r:16px;
+}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%}
+body{font-family:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.5}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:3px solid #8fd3ae;outline-offset:2px}
+.app{display:flex;min-height:100%}
+.side{width:230px;background:var(--surface);border-right:1px solid var(--line);padding:24px 16px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:6px}
+.brand{font-weight:800;font-size:20px;color:var(--green-d);padding:0 12px 18px;display:flex;align-items:center;gap:10px}
+.brand i{width:30px;height:30px;border-radius:10px;background:var(--green);display:grid;place-items:center;color:#fff;font-style:normal;font-size:16px}
+.nav a{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:12px;color:var(--muted);text-decoration:none;font-weight:600}
+.nav a.on{background:var(--green-l);color:var(--green-d)}
+.nav a:hover:not(.on){background:#f3faf5}
+main{flex:1;min-width:0;padding:28px clamp(16px,4vw,40px) 40px;max-width:1100px}
+h1{font-size:24px;font-weight:800;margin-bottom:4px}
+.sub{color:var(--muted);margin-bottom:22px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px}
+.stat small{color:var(--muted);font-weight:600}
+.stat b{display:block;font-size:24px;font-weight:800;margin-top:4px;word-break:break-word}
+.stat.total{background:var(--green);border-color:var(--green);color:#fff}
+.stat.total small{color:#d8f5e3}
+.in b{color:var(--green-d)} .out b{color:var(--red)}
+.card h2{font-size:17px;font-weight:700;margin-bottom:14px}
+.two{display:grid;grid-template-columns:340px 1fr;gap:18px;align-items:start}
+label{display:block;font-weight:600;font-size:13px;margin:0 0 6px;color:var(--muted)}
+.f{margin-bottom:14px}
+input,select{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;background:#fbfefc}
+input:focus,select:focus{border-color:var(--green);outline:none;box-shadow:0 0 0 3px #cdeedb}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.seg button{padding:11px;border-radius:12px;border:1.5px solid var(--line);background:#fbfefc;font-weight:700;cursor:pointer}
+.seg button.on.m{background:var(--green-l);border-color:var(--green);color:var(--green-d)}
+.seg button.on.k{background:var(--red-l);border-color:var(--red);color:var(--red)}
+.btn{width:100%;padding:13px;border:0;border-radius:12px;background:var(--green);color:#fff;font-weight:700;cursor:pointer}
+.btn:hover{background:var(--green-d)} .btn:disabled{opacity:.6;cursor:wait}
+.btn.ghost{background:var(--green-l);color:var(--green-d);width:auto;padding:8px 14px;font-size:13px}
+.btn.ghost.del{background:var(--red-l);color:var(--red)}
+.row{display:flex;align-items:center;gap:12px;padding:13px 4px;border-bottom:1px solid var(--line)}
+.row:last-child{border:0}
+.av{width:38px;height:38px;border-radius:50%;background:var(--green-l);color:var(--green-d);display:grid;place-items:center;font-weight:800;flex:none}
+.grow{flex:1;min-width:0}.grow b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.grow span{color:var(--muted);font-size:13px}
+.amt{font-weight:700;white-space:nowrap}.pos{color:var(--green-d)}.neg{color:var(--red)}
+.acts{display:flex;gap:6px}
+.clickable{cursor:pointer;border-radius:12px}.clickable:hover{background:#f3faf5}
+.tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--green-l);color:var(--green-d);margin-left:6px}
+.empty{text-align:center;color:var(--muted);padding:26px 8px}
+.mini{display:flex;gap:8px}.mini input{flex:1}.mini .btn{width:auto;padding:0 16px}
+.modal{position:fixed;inset:0;background:rgba(23,51,35,.4);display:none;align-items:center;justify-content:center;padding:16px;z-index:20}
+.modal.open{display:flex}
+.sheet{background:var(--surface);border-radius:20px;width:min(560px,100%);max-height:88vh;display:flex;flex-direction:column}
+.sheet header{padding:20px 22px 12px;display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.sheet .body{overflow:auto;padding:0 22px 22px}
+.x{border:0;background:var(--green-l);width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:18px;color:var(--green-d)}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:11px 18px;border-radius:99px;font-weight:600;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:30;max-width:90vw;text-align:center}
+.toast.show{opacity:1}
+.setup{background:#fff8e1;border:1px solid #f1dc9a;padding:16px;border-radius:var(--r);margin-bottom:18px}
+.setup code{background:#fff;padding:1px 6px;border-radius:6px}
+@media(max-width:860px){
+  .two{grid-template-columns:1fr}
+  .side{position:fixed;inset:auto 0 0 0;width:auto;height:auto;flex-direction:row;padding:6px 10px calc(6px + env(safe-area-inset-bottom));border-right:0;border-top:1px solid var(--line);z-index:10;justify-content:space-around}
+  .brand{display:none}
+  .nav{display:flex;width:100%;justify-content:space-around}
+  .nav a{flex-direction:column;gap:2px;font-size:12px;padding:8px 14px}
+  main{padding-bottom:100px}
+}
+@media(max-width:640px){.grid3{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand"><i>◎</i>TabunganKu</div>
+    <nav class="nav" id="nav">
+      <a href="#dashboard" data-p="dashboard">🏠 Dashboard</a>
+      <a href="#transaksi" data-p="transaksi">💸 Transaksi</a>
+      <a href="#user" data-p="user">👥 User</a>
+    </nav>
+  </aside>
+  <main id="view"></main>
+</div>
+
+<div class="modal" id="modal"><div class="sheet" role="dialog" aria-modal="true">
+  <header><div><h2 id="mTitle" style="font-size:18px"></h2><div id="mSub" class="sub" style="margin:0"></div></div><button class="x" id="mClose" aria-label="Tutup">×</button></header>
+  <div class="body" id="mBody"></div>
+</div></div>
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { getFirestore, collection, getDocs, addDoc, updateDoc, doc, writeBatch } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+/* ====== TEMPEL firebaseConfig ANDA DI SINI (Project settings → Your apps) ====== */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyA42gG5IiX5W9vXt-Hv2IvkevvL4xlblX0",
+  authDomain: "tabunganku-89c7a.firebaseapp.com",
+  projectId: "tabunganku-89c7a",
+  storageBucket: "tabunganku-89c7a.firebasestorage.app",
+  messagingSenderId: "412040071020",
+  appId: "1:412040071020:web:f91d97c509c87341d91549"
+};
+/* ================================================================================ */
+
+const configured = !FIREBASE_CONFIG.apiKey.startsWith("ISI_");
+const db = configured ? getFirestore(initializeApp(FIREBASE_CONFIG)) : null;
+const $ = s => document.querySelector(s);
+const rp = n => "Rp " + new Intl.NumberFormat("id-ID").format(Math.round(n));
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const tgl = d => new Date(d + "T00:00:00").toLocaleDateString("id-ID", {day:"numeric", month:"short", year:"numeric"});
+const today = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0,10); };
+let users = [], txs = [];
+
+function toast(m){ const t=$("#toast"); t.textContent=m; t.classList.add("show"); clearTimeout(toast.t); toast.t=setTimeout(()=>t.classList.remove("show"),2600); }
+
+async function load(){
+  try{
+    const [u,t]=await Promise.all([getDocs(collection(db,"tab_users")),getDocs(collection(db,"tab_transactions"))]);
+    users=u.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.name.localeCompare(b.name));
+    txs=t.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>b.date.localeCompare(a.date)||(b.createdAt||0)-(a.createdAt||0));
+    return true;
+  }catch(e){ toast("Gagal memuat data: "+e.message); return false; }
+}
+const balanceOf = id => txs.filter(t=>t.user_id===id).reduce((s,t)=>s+(t.type==="masuk"?+t.amount:-t.amount),0);
+const setupBox = () => `<div class="setup"><b>Hubungkan Firebase dulu</b><p style="margin-top:6px">Buka file ini, lalu tempel <code>firebaseConfig</code> dari Firebase Console ke bagian <code>FIREBASE_CONFIG</code> di script.</p></div>`;
+
+/* ---------- DASHBOARD ---------- */
+function dashboard(){
+  const masuk = txs.filter(t=>t.type==="masuk").reduce((s,t)=>s+ +t.amount,0);
+  const keluar = txs.filter(t=>t.type==="keluar").reduce((s,t)=>s+ +t.amount,0);
+  $("#view").innerHTML = `
+    <h1>Dashboard</h1><p class="sub">Ringkasan tabungan semua user</p>
+    ${configured ? "" : setupBox()}
+    <div class="grid3">
+      <div class="card stat in"><small>Uang masuk</small><b>${rp(masuk)}</b></div>
+      <div class="card stat out"><small>Uang keluar</small><b>${rp(keluar)}</b></div>
+      <div class="card stat total"><small>Saldo total</small><b>${rp(masuk-keluar)}</b></div>
+    </div>
+    <div class="card"><h2>Saldo per user</h2>
+      ${users.length ? users.map(u=>{ const b=balanceOf(u.id); return `
+        <div class="row clickable" data-id="${u.id}" tabindex="0" role="button">
+          <div class="av">${esc(u.name[0].toUpperCase())}</div>
+          <div class="grow"><b>${esc(u.name)}</b><span>${txs.filter(t=>t.user_id===u.id).length} transaksi · lihat mutasi</span></div>
+          <div class="amt ${b<0?"neg":"pos"}">${rp(b)}</div></div>`}).join("")
+      : `<div class="empty">Belum ada user. <a href="#user" style="color:var(--green-d);font-weight:700">Tambah user</a> dulu.</div>`}
+    </div>`;
+  document.querySelectorAll(".clickable").forEach(el=>{
+    const go=()=>mutasi(el.dataset.id);
+    el.onclick=go; el.onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){e.preventDefault();go();} };
+  });
+}
+
+function mutasi(id){
+  const u = users.find(x=>x.id===id); if(!u) return;
+  const list = txs.filter(t=>t.user_id===id);
+  $("#mTitle").textContent = "Mutasi " + u.name;
+  $("#mSub").textContent = "Saldo saat ini: " + rp(balanceOf(id));
+  $("#mBody").innerHTML = list.length ? list.map(t=>`
+    <div class="row">
+      <div class="av" style="background:${t.type==="masuk"?"var(--green-l)":"var(--red-l)"};color:${t.type==="masuk"?"var(--green-d)":"var(--red)"}">${t.type==="masuk"?"↓":"↑"}</div>
+      <div class="grow"><b>${esc(t.note||(t.type==="masuk"?"Uang masuk":"Uang keluar"))}<span class="tag">${t.source==="tf"?"Transfer":"Cash"}</span></b><span>${tgl(t.date)}</span></div>
+      <div class="amt ${t.type==="masuk"?"pos":"neg"}">${t.type==="masuk"?"+":"−"}${rp(t.amount)}</div></div>`).join("")
+    : `<div class="empty">Belum ada transaksi.</div>`;
+  $("#modal").classList.add("open"); $("#mClose").focus();
+}
+$("#mClose").onclick = () => $("#modal").classList.remove("open");
+$("#modal").onclick = e => { if(e.target.id==="modal") $("#modal").classList.remove("open"); };
+document.addEventListener("keydown", e => { if(e.key==="Escape") $("#modal").classList.remove("open"); });
+
+/* ---------- TRANSAKSI ---------- */
+function transaksi(){
+  let type = "masuk", source = "tf";
+  $("#view").innerHTML = `
+    <h1>Input transaksi</h1><p class="sub">Catat uang masuk atau keluar</p>
+    ${configured ? "" : setupBox()}
+    <div class="two">
+      <div class="card"><h2>Form transaksi</h2>
+        <form id="f" autocomplete="off">
+          <div class="f"><label for="nm">Nama user</label>
+            <input id="nm" list="ul" placeholder="Ketik atau pilih nama" required>
+            <datalist id="ul">${users.map(u=>`<option value="${esc(u.name)}">`).join("")}</datalist></div>
+          <div class="f"><label>Jenis transaksi</label><div class="seg" id="tp">
+            <button type="button" class="on m" data-v="masuk">↓ Uang masuk</button>
+            <button type="button" class="k" data-v="keluar">↑ Uang keluar</button></div></div>
+          <div class="f"><label for="am">Jumlah (Rp)</label><input id="am" inputmode="numeric" placeholder="0" required></div>
+          <div class="f"><label for="dt">Tanggal</label><input id="dt" type="date" value="${today()}" required></div>
+          <div class="f"><label>Sumber</label><div class="seg" id="sr">
+            <button type="button" class="on m" data-v="tf">Transfer</button>
+            <button type="button" data-v="cash" class="m">Cash</button></div></div>
+          <div class="f"><label for="nt">Keperluan</label><input id="nt" placeholder="Contoh: setoran bulanan" required></div>
+          <button class="btn" id="sb">Simpan transaksi</button>
+        </form></div>
+      <div class="card"><h2>Tambah user cepat</h2>
+        <div class="mini"><input id="qn" placeholder="Nama user baru"><button class="btn" id="qb">Tambah</button></div>
+        <h2 style="margin-top:24px">Transaksi terakhir</h2>
+        ${txs.slice(0,6).map(t=>{ const u=users.find(x=>x.id===t.user_id); return `
+          <div class="row"><div class="grow"><b>${esc(u?.name||"-")}</b><span>${tgl(t.date)} · ${esc(t.note||"")}</span></div>
+          <div class="amt ${t.type==="masuk"?"pos":"neg"}">${t.type==="masuk"?"+":"−"}${rp(t.amount)}</div></div>`}).join("") || `<div class="empty">Belum ada transaksi.</div>`}
+      </div>
+    </div>`;
+  const segment = (id, cb) => document.querySelectorAll(`#${id} button`).forEach(b => b.onclick = () => {
+    document.querySelectorAll(`#${id} button`).forEach(x=>x.classList.remove("on")); b.classList.add("on"); cb(b.dataset.v);
+    if(id==="tp"){ document.querySelectorAll("#tp button").forEach(x=>x.classList.remove("m","k")); b.classList.add(b.dataset.v==="masuk"?"m":"k"); }
+  });
+  segment("tp", v=>type=v); segment("sr", v=>source=v);
+  $("#am").oninput = e => { const n=e.target.value.replace(/\D/g,""); e.target.value = n ? new Intl.NumberFormat("id-ID").format(n) : ""; };
+  $("#qb").onclick = async () => {
+    const name = $("#qn").value.trim(); if(!name) return toast("Isi nama user dulu");
+    if(await addUser(name)){ await load(); transaksi(); $("#nm").value=name; }
+  };
+  $("#f").onsubmit = async e => {
+    e.preventDefault(); if(!configured) return toast("Isi konfigurasi Firebase dulu");
+    const u = users.find(x=>x.name.toLowerCase()===$("#nm").value.trim().toLowerCase());
+    if(!u) return toast("User belum terdaftar. Tambahkan dulu.");
+    const amount = +$("#am").value.replace(/\D/g,"");
+    if(!amount) return toast("Jumlah harus lebih dari 0");
+    if(type==="keluar" && amount > balanceOf(u.id)) return toast("Saldo " + u.name + " hanya " + rp(balanceOf(u.id)));
+    $("#sb").disabled = true;
+    let error=null; try{ await addDoc(collection(db,"tab_transactions"),{ user_id:u.id, type, amount, date:$("#dt").value, source, note:$("#nt").value.trim(), createdAt:Date.now() }); }catch(e){ error=e; }
+    $("#sb").disabled = false;
+    if(error) return toast("Gagal menyimpan: " + error.message);
+    toast("Transaksi tersimpan"); await load(); transaksi();
+  };
+}
+
+/* ---------- USER ---------- */
+async function addUser(name){
+  if(!configured){ toast("Isi konfigurasi Firebase dulu"); return false; }
+  if(users.some(u=>u.name.toLowerCase()===name.toLowerCase())){ toast("Nama sudah terdaftar"); return false; }
+  let error=null; try{ await addDoc(collection(db,"tab_users"),{ name, createdAt:Date.now() }); }catch(e){ error=e; }
+  if(error){ toast("Gagal menambah user: " + error.message); return false; }
+  toast("User ditambahkan"); return true;
+}
+function userPage(){
+  $("#view").innerHTML = `
+    <h1>Kelola user</h1><p class="sub">Tambah, ubah, atau hapus user</p>
+    ${configured ? "" : setupBox()}
+    <div class="two">
+      <div class="card"><h2>Tambah user</h2>
+        <form id="uf"><div class="f"><label for="un">Nama</label><input id="un" placeholder="Nama lengkap" required></div>
+        <button class="btn">Simpan user</button></form></div>
+      <div class="card"><h2>Daftar user (${users.length})</h2>
+        ${users.map(u=>`
+          <div class="row"><div class="av">${esc(u.name[0].toUpperCase())}</div>
+            <div class="grow"><b>${esc(u.name)}</b><span>Saldo ${rp(balanceOf(u.id))}</span></div>
+            <div class="acts"><button class="btn ghost" data-e="${u.id}">Edit</button><button class="btn ghost del" data-d="${u.id}">Hapus</button></div></div>`).join("")
+        || `<div class="empty">Belum ada user. Isi form di sebelah kiri.</div>`}
+      </div>
+    </div>`;
+  $("#uf").onsubmit = async e => { e.preventDefault(); const n=$("#un").value.trim(); if(n && await addUser(n)){ await load(); userPage(); } };
+  document.querySelectorAll("[data-e]").forEach(b => b.onclick = async () => {
+    const u = users.find(x=>x.id===b.dataset.e);
+    const name = prompt("Ubah nama user:", u.name); if(!name || !name.trim() || name.trim()===u.name) return;
+    let error=null; try{ await updateDoc(doc(db,"tab_users",u.id),{ name:name.trim() }); }catch(e){ error=e; }
+    if(error) return toast("Gagal mengubah: " + error.message);
+    toast("Nama diperbarui"); await load(); userPage();
+  });
+  document.querySelectorAll("[data-d]").forEach(b => b.onclick = async () => {
+    const u = users.find(x=>x.id===b.dataset.d), n = txs.filter(t=>t.user_id===u.id).length;
+    if(!confirm(`Hapus "${u.name}"?` + (n ? `\n${n} transaksi miliknya juga akan terhapus.` : ""))) return;
+    let error=null; try{ const b=writeBatch(db); txs.filter(t=>t.user_id===u.id).forEach(t=>b.delete(doc(db,"tab_transactions",t.id))); b.delete(doc(db,"tab_users",u.id)); await b.commit(); }catch(e){ error=e; }
+    if(error) return toast("Gagal menghapus: " + error.message);
+    toast("User dihapus"); await load(); userPage();
+  });
+}
+
+/* ---------- ROUTER ---------- */
+const pages = { dashboard, transaksi, user:userPage };
+function route(){
+  const p = pages[location.hash.slice(1)] ? location.hash.slice(1) : "dashboard";
+  document.querySelectorAll("#nav a").forEach(a=>a.classList.toggle("on", a.dataset.p===p));
+  pages[p](); window.scrollTo(0,0);
+}
+window.addEventListener("hashchange", route);
+(async () => { if(configured) await load(); route(); })();
+</script>
+</body>
+</html>

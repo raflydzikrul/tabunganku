@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>TabunganKu</title>
+<title>TabunganKu – Aplikasi Tabungan</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -50,6 +50,7 @@ input:focus,select:focus{border-color:var(--green);outline:none;box-shadow:0 0 0
 .btn.ghost.del{background:var(--red-l);color:var(--red)}
 .row{display:flex;align-items:center;gap:12px;padding:13px 4px;border-bottom:1px solid var(--line)}
 .row:last-child{border:0}
+.row.wrap{flex-wrap:wrap}
 .av{width:38px;height:38px;border-radius:50%;background:var(--green-l);color:var(--green-d);display:grid;place-items:center;font-weight:800;flex:none}
 .grow{flex:1;min-width:0}.grow b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .grow span{color:var(--muted);font-size:13px}
@@ -102,17 +103,17 @@ input:focus,select:focus{border-color:var(--green);outline:none;box-shadow:0 0 0
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc, updateDoc, doc, writeBatch } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, writeBatch } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
 /* ====== TEMPEL firebaseConfig ANDA DI SINI (Project settings → Your apps) ====== */
-const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyA42gG5IiX5W9vXt-Hv2IvkevvL4xlblX0",
-  authDomain: "tabunganku-89c7a.firebaseapp.com",
-  projectId: "tabunganku-89c7a",
-  storageBucket: "tabunganku-89c7a.firebasestorage.app",
-  messagingSenderId: "412040071020",
-  appId: "1:412040071020:web:f91d97c509c87341d91549"
-};
+  const FIREBASE_CONFIG = {
+    apiKey: "AIzaSyA42gG5IiX5W9vXt-Hv2IvkevvL4xlblX0",
+    authDomain: "tabunganku-89c7a.firebaseapp.com",
+    projectId: "tabunganku-89c7a",
+    storageBucket: "tabunganku-89c7a.firebasestorage.app",
+    messagingSenderId: "412040071020",
+    appId: "1:412040071020:web:f91d97c509c87341d91549"
+  };
 /* ================================================================================ */
 
 const configured = !FIREBASE_CONFIG.apiKey.startsWith("ISI_");
@@ -169,12 +170,68 @@ function mutasi(id){
   $("#mTitle").textContent = "Mutasi " + u.name;
   $("#mSub").textContent = "Saldo saat ini: " + rp(balanceOf(id));
   $("#mBody").innerHTML = list.length ? list.map(t=>`
-    <div class="row">
+    <div class="row wrap">
       <div class="av" style="background:${t.type==="masuk"?"var(--green-l)":"var(--red-l)"};color:${t.type==="masuk"?"var(--green-d)":"var(--red)"}">${t.type==="masuk"?"↓":"↑"}</div>
       <div class="grow"><b>${esc(t.note||(t.type==="masuk"?"Uang masuk":"Uang keluar"))}<span class="tag">${t.source==="tf"?"Transfer":"Cash"}</span></b><span>${tgl(t.date)}</span></div>
-      <div class="amt ${t.type==="masuk"?"pos":"neg"}">${t.type==="masuk"?"+":"−"}${rp(t.amount)}</div></div>`).join("")
+      <div class="amt ${t.type==="masuk"?"pos":"neg"}">${t.type==="masuk"?"+":"−"}${rp(t.amount)}</div>
+      <div class="acts" style="width:100%;justify-content:flex-end"><button class="btn ghost" data-te="${t.id}">Edit</button><button class="btn ghost del" data-td="${t.id}">Hapus</button></div></div>`).join("")
     : `<div class="empty">Belum ada transaksi.</div>`;
+  document.querySelectorAll("[data-te]").forEach(b => b.onclick = () => editTx(b.dataset.te));
+  document.querySelectorAll("[data-td]").forEach(b => b.onclick = () => delTx(b.dataset.td));
   $("#modal").classList.add("open"); $("#mClose").focus();
+}
+
+const eff = (ty, a) => ty === "masuk" ? +a : -a;
+
+function editTx(tid){
+  const t = txs.find(x=>x.id===tid); if(!t) return;
+  const u = users.find(x=>x.id===t.user_id);
+  let type = t.type, source = t.source;
+  $("#mTitle").textContent = "Edit transaksi";
+  $("#mSub").textContent = u.name;
+  $("#mBody").innerHTML = `
+    <form id="ef" autocomplete="off">
+      <div class="f"><label>Jenis transaksi</label><div class="seg" id="etp">
+        <button type="button" data-v="masuk" class="${type==="masuk"?"on m":""}">↓ Uang masuk</button>
+        <button type="button" data-v="keluar" class="${type==="keluar"?"on k":""}">↑ Uang keluar</button></div></div>
+      <div class="f"><label for="eam">Jumlah (Rp)</label><input id="eam" inputmode="numeric" value="${new Intl.NumberFormat("id-ID").format(t.amount)}" required></div>
+      <div class="f"><label for="edt">Tanggal</label><input id="edt" type="date" value="${esc(t.date)}" required></div>
+      <div class="f"><label>Sumber</label><div class="seg" id="esr">
+        <button type="button" data-v="tf" class="m ${source==="tf"?"on":""}">Transfer</button>
+        <button type="button" data-v="cash" class="m ${source==="cash"?"on":""}">Cash</button></div></div>
+      <div class="f"><label for="ent">Keperluan</label><input id="ent" value="${esc(t.note)}" required></div>
+      <button class="btn">Simpan perubahan</button>
+      <button type="button" class="btn ghost" id="ec" style="width:100%;margin-top:8px;padding:12px">Batal</button>
+    </form>`;
+  document.querySelectorAll("#etp button").forEach(b => b.onclick = () => {
+    document.querySelectorAll("#etp button").forEach(x=>x.classList.remove("on","m","k"));
+    b.classList.add("on", b.dataset.v==="masuk" ? "m" : "k"); type = b.dataset.v;
+  });
+  document.querySelectorAll("#esr button").forEach(b => b.onclick = () => {
+    document.querySelectorAll("#esr button").forEach(x=>x.classList.remove("on"));
+    b.classList.add("on"); source = b.dataset.v;
+  });
+  $("#eam").oninput = e => { const n=e.target.value.replace(/\D/g,""); e.target.value = n ? new Intl.NumberFormat("id-ID").format(n) : ""; };
+  $("#ec").onclick = () => mutasi(t.user_id);
+  $("#ef").onsubmit = async e => {
+    e.preventDefault();
+    const amount = +$("#eam").value.replace(/\D/g,"");
+    if(!amount) return toast("Jumlah harus lebih dari 0");
+    if(balanceOf(t.user_id) - eff(t.type,t.amount) + eff(type,amount) < 0) return toast("Perubahan ini membuat saldo " + u.name + " menjadi minus");
+    try { await updateDoc(doc(db,"tab_transactions",tid), { type, amount, date:$("#edt").value, source, note:$("#ent").value.trim() }); }
+    catch(err){ return toast("Gagal menyimpan: " + err.message); }
+    toast("Transaksi diperbarui"); await load(); route(); mutasi(t.user_id);
+  };
+}
+
+async function delTx(tid){
+  const t = txs.find(x=>x.id===tid); if(!t) return;
+  const u = users.find(x=>x.id===t.user_id);
+  if(balanceOf(t.user_id) - eff(t.type,t.amount) < 0) return toast("Tidak bisa dihapus: saldo " + u.name + " akan menjadi minus");
+  if(!confirm(`Hapus transaksi ${t.type==="masuk"?"masuk":"keluar"} ${rp(t.amount)} tanggal ${tgl(t.date)}?`)) return;
+  try { await deleteDoc(doc(db,"tab_transactions",tid)); }
+  catch(err){ return toast("Gagal menghapus: " + err.message); }
+  toast("Transaksi dihapus"); await load(); route(); mutasi(t.user_id);
 }
 $("#mClose").onclick = () => $("#modal").classList.remove("open");
 $("#modal").onclick = e => { if(e.target.id==="modal") $("#modal").classList.remove("open"); };
